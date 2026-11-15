@@ -11,6 +11,9 @@ def index(request):
     context = {'products': products, 'categories': categories}
     return render(request, 'shop/index.html', context)
 
+def contacts(request):
+    return render(request, 'shop/contacts.html')
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -72,27 +75,22 @@ def checkout(request):
     return render(request, 'shop/checkout.html')
 
 def profile(request):
-    # Берем все заказы текущего пользователя
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'shop/profile.html', {'orders': orders})
 
-# Класс для защиты от Brute Force
 class SecureLoginView(LoginView):
     template_name = 'registration/login.html'
     authentication_form = SecureLoginForm
 
     def form_invalid(self, form):
-        # Если пароль неверный, записываем неудачную попытку
         username = form.cleaned_data.get('username')
         ip = self.request.META.get('REMOTE_ADDR')
         LoginAttempt.objects.create(username=username, ip_address=ip, is_success=False)
         return super().form_invalid(form)
 
     def form_valid(self, form):
-        # Если вход успешный, записываем это и очищаем историю неудач
         username = form.cleaned_data.get('username')
         ip = self.request.META.get('REMOTE_ADDR')
         LoginAttempt.objects.create(username=username, ip_address=ip, is_success=True)
-        # Удаляем старые неудачные попытки для этого пользователя
         LoginAttempt.objects.filter(username=username, is_success=False).delete()
         return super().form_valid(form)

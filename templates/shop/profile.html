@@ -1,0 +1,51 @@
+{% extends 'shop/base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Личный кабинет: {{ user.username }}</h2>
+
+<h4 class="mt-4">История ваших заказов</h4>
+
+{% if orders %}
+    <div class="accordion" id="ordersAccordion">
+        {% for order in orders %}
+        <div class="accordion-item mb-2">
+            <h2 class="accordion-header" id="heading{{ order.id }}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ order.id }}">
+                    <strong>Заказ №{{ order.id }}</strong> &nbsp; | &nbsp; 
+                    Дата: {{ order.created_at|date:"d.m.Y H:i" }} &nbsp; | &nbsp; 
+                    Сумма: <span class="text-success">{{ order.total_price }} ₽</span> &nbsp; | &nbsp;
+                    Статус: <span class="badge bg-primary">{{ order.get_status_display }}</span>
+                </button>
+            </h2>
+            <div id="collapse{{ order.id }}" class="accordion-collapse collapse" data-bs-parent="#ordersAccordion">
+                <div class="accordion-body">
+                    <p><strong>Адрес:</strong> {{ order.address }} <br>
+                    <strong>Телефон:</strong> {{ order.phone }}</p>
+                    
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Товар</th>
+                                <th>Кол-во</th>
+                                <th>Цена</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>{{ item.quantity }} {{ item.product.unit }}</td>
+                                <td>{{ item.price }} ₽</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-secondary">У вас пока нет заказов. <a href="{% url 'index' %}">Перейти в каталог</a></div>
+{% endif %}
+{% endblock %}

@@ -18,18 +18,18 @@
     <!-- Навигационная панель -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand text-white" href="/">🥦 Магазин "Ольга"</a>
+            <a class="navbar-brand text-white" href="/">Магазин "Ольга"</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="/">Главная</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Контакты</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'contacts' %}">Контакты</a></li>
                     
                     {% if user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Личный кабинет</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Корзина</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'cart_view' %}">Корзина</a></li>
                         <li class="nav-item">
                             <!-- Форма для выхода из аккаунта -->
                             <form method="post" action="{% url 'logout' %}" class="d-inline">
