@@ -2,14 +2,29 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
-from django.contrib import messages # <--- ДОБАВЛЕНО ДЛЯ УВЕДОМЛЕНИЙ
+from django.contrib import messages
 from .models import Product, Category, Order, OrderItem, OrderStatusHistory, LoginAttempt
 from .forms import SecureLoginForm
 
 def index(request):
-    products = Product.objects.filter(is_available=True)
+    # Получаем все категории
     categories = Category.objects.all()
-    context = {'products': products, 'categories': categories}
+    
+    # Получаем параметр из адресной строки (например, ?category=milk)
+    category_slug = request.GET.get('category')
+    
+    if category_slug:
+        # Если категория выбрана, фильтруем товары
+        products = Product.objects.filter(is_available=True, category__slug=category_slug)
+    else:
+        # Если не выбрана, показываем все товары
+        products = Product.objects.filter(is_available=True)
+        
+    context = {
+        'products': products, 
+        'categories': categories,
+        'current_category': category_slug 
+    }
     return render(request, 'shop/index.html', context)
 
 def contacts(request):
