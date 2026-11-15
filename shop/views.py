@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
+from django.contrib import messages # <--- ДОБАВЛЕНО ДЛЯ УВЕДОМЛЕНИЙ
 from .models import Product, Category, Order, OrderItem, OrderStatusHistory, LoginAttempt
 from .forms import SecureLoginForm
 
@@ -29,7 +30,6 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
     if request.method == 'POST':
-        # Получаем количество из формы, по умолчанию 1
         quantity = int(request.POST.get('quantity', 1))
     else:
         quantity = 1
@@ -37,11 +37,14 @@ def add_to_cart(request, product_id):
     cart = request.session.get('cart', {})
     product_id_str = str(product_id)
     
-    # Добавляем указанное количество
     cart[product_id_str] = cart.get(product_id_str, 0) + quantity
     request.session['cart'] = cart
     
-    return redirect('cart_view')
+    # Добавляем сообщение об успехе
+    messages.success(request, f"Товар «{product.name}» ({quantity} {product.unit}) добавлен в корзину.")
+    
+    # Возвращаем пользователя обратно на ту же страницу
+    return redirect(request.META.get('HTTP_REFERER', 'index'))
 
 def update_cart(request, product_id):
     if request.method == 'POST':
@@ -52,7 +55,7 @@ def update_cart(request, product_id):
         if quantity > 0:
             cart[product_id_str] = quantity
         else:
-            cart.pop(product_id_str, None) # Если 0, удаляем
+            cart.pop(product_id_str, None)
             
         request.session['cart'] = cart
     return redirect('cart_view')

@@ -16,7 +16,6 @@
         .navbar-brand { font-weight: bold; color: #198754 !important; }
         .card { transition: transform 0.2s; }
         .card:hover { transform: scale(1.02); }
-        /* Этот класс заставляет основной контент занимать все свободное место */
         .main-content {
             flex: 1;
         }
@@ -55,8 +54,19 @@
         </div>
     </nav>
 
-    <!-- Основной контент страницы (добавлен класс main-content) -->
+    <!-- Основной контент страницы -->
     <div class="container mt-4 main-content">
+        
+        <!-- Блок для вывода сообщений (уведомлений) -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
         {% block content %}
         <!-- Сюда будут вставляться остальные страницы -->
         {% endblock %}
