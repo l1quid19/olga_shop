@@ -7,3 +7,4 @@ python-dotenv==1.2.4
 sqlparse==0.6.1
 tzdata==2026.6
 whitenoise==6.6.0
+gunicorn==23.0.0
