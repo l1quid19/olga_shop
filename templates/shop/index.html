@@ -32,7 +32,16 @@
                             <h4 class="text-success mt-auto">{{ product.price }} ₽ <small class="text-muted fs-6">/ {{ product.unit }}</small></h4>
                         </div>
                         <div class="card-footer bg-white border-top-0 pb-3">
-                            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-outline-success w-100">В корзину</a>
+                            <!-- Форма добавления в корзину с выбором количества -->
+                            <form method="post" action="{% url 'add_to_cart' product.id %}">
+                                {% csrf_token %}
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">Кол-во</span>
+                                    <input type="number" name="quantity" class="form-control" value="1" min="1" max="{{ product.stock }}" required>
+                                    <span class="input-group-text">{{ product.unit }}</span>
+                                </div>
+                                <button type="submit" class="btn btn-outline-success w-100">В корзину</button>
+                            </form>
                         </div>
                     </div>
                 </div>

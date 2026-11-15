@@ -27,9 +27,41 @@ def register(request):
 
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        # Получаем количество из формы, по умолчанию 1
+        quantity = int(request.POST.get('quantity', 1))
+    else:
+        quantity = 1
+        
     cart = request.session.get('cart', {})
     product_id_str = str(product_id)
-    cart[product_id_str] = cart.get(product_id_str, 0) + 1
+    
+    # Добавляем указанное количество
+    cart[product_id_str] = cart.get(product_id_str, 0) + quantity
+    request.session['cart'] = cart
+    
+    return redirect('cart_view')
+
+def update_cart(request, product_id):
+    if request.method == 'POST':
+        quantity = int(request.POST.get('quantity', 1))
+        cart = request.session.get('cart', {})
+        product_id_str = str(product_id)
+        
+        if quantity > 0:
+            cart[product_id_str] = quantity
+        else:
+            cart.pop(product_id_str, None) # Если 0, удаляем
+            
+        request.session['cart'] = cart
+    return redirect('cart_view')
+
+def remove_from_cart(request, product_id):
+    cart = request.session.get('cart', {})
+    product_id_str = str(product_id)
+    if product_id_str in cart:
+        del cart[product_id_str]
     request.session['cart'] = cart
     return redirect('cart_view')
 
