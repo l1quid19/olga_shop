@@ -1,0 +1,47 @@
+{% extends 'shop/base.html' %}
+
+{% block content %}
+<div class="row">
+    <!-- Боковая панель с категориями -->
+    <div class="col-md-3 mb-4">
+        <div class="list-group">
+            <a href="/" class="list-group-item list-group-item-action active">Все категории</a>
+            {% for category in categories %}
+                <a href="#" class="list-group-item list-group-item-action">{{ category.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Сетка с товарами -->
+    <div class="col-md-9">
+        <h2 class="mb-4">Наши продукты</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for product in products %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <!-- Показываем картинку, если она есть, иначе заглушку -->
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300x200?text=Нет+фото" class="card-img-top" alt="Нет фото">
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted small">{{ product.category.name }}</p>
+                            <h4 class="text-success">{{ product.price }} ₽ <small class="text-muted">/ {{ product.unit }}</small></h4>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-outline-success w-100">В корзину</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <p class="alert alert-info">Товаров пока нет. Добавьте их через админку.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
