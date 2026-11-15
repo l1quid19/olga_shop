@@ -4,20 +4,15 @@ from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from .models import Product, Category, Order, OrderItem, OrderStatusHistory, LoginAttempt
-from .forms import SecureLoginForm
+from .forms import SecureLoginForm, CustomUserCreationForm
 
 def index(request):
-    # Получаем все категории
     categories = Category.objects.all()
-    
-    # Получаем параметр из адресной строки (например, ?category=milk)
     category_slug = request.GET.get('category')
     
     if category_slug:
-        # Если категория выбрана, фильтруем товары
         products = Product.objects.filter(is_available=True, category__slug=category_slug)
     else:
-        # Если не выбрана, показываем все товары
         products = Product.objects.filter(is_available=True)
         
     context = {
@@ -30,15 +25,26 @@ def index(request):
 def contacts(request):
     return render(request, 'shop/contacts.html')
 
+def privacy(request):
+    return render(request, 'shop/privacy.html')
+
+def password_reset(request):
+    message = None
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        if email:
+            message = "Если такой email зарегистрирован, мы отправили на него инструкции по восстановлению пароля."
+    return render(request, 'registration/password_reset_form.html', {'message': message})
+
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             return redirect('index')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'shop/register.html', {'form': form})
 
 def add_to_cart(request, product_id):
@@ -55,10 +61,7 @@ def add_to_cart(request, product_id):
     cart[product_id_str] = cart.get(product_id_str, 0) + quantity
     request.session['cart'] = cart
     
-    # Добавляем сообщение об успехе
     messages.success(request, f"Товар «{product.name}» ({quantity} {product.unit}) добавлен в корзину.")
-    
-    # Возвращаем пользователя обратно на ту же страницу
     return redirect(request.META.get('HTTP_REFERER', 'index'))
 
 def update_cart(request, product_id):
