@@ -9,21 +9,30 @@ from datetime import timedelta
 class SecureLoginForm(AuthenticationForm):
     def confirm_login_allowed(self, user):
         super().confirm_login_allowed(user)
-        
-        ip = self.request.META.get('REMOTE_ADDR')
-        time_threshold = timezone.now() - timedelta(minutes=15)
-        failed_attempts = LoginAttempt.objects.filter(
-            username=user.username,
-            ip_address=ip,
-            is_success=False,
-            attempt_time__gte=time_threshold
-        ).count()
-        
-        if failed_attempts >= 5:
-            raise ValidationError(
-                "Слишком много неудачных попыток входа. Ваш аккаунт временно заблокирован на 15 минут.",
-                code='too_many_attempts',
-            )
+
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username is not None and password:
+            ip = self.request.META.get('REMOTE_ADDR')
+            time_threshold = timezone.now() - timedelta(minutes=15)
+            
+            # Проверяем блокировку ДО проверки пароля
+            failed_attempts = LoginAttempt.objects.filter(
+                username=username,
+                ip_address=ip,
+                is_success=False,
+                attempt_time__gte=time_threshold
+            ).count()
+            
+            if failed_attempts >= 5:
+                raise ValidationError(
+                    "Слишком много неудачных попыток входа. Ваш аккаунт временно заблокирован на 15 минут.",
+                    code='too_many_attempts',
+                )
+
+        return super().clean()
 
 # Новая форма регистрации с галочкой согласия
 class CustomUserCreationForm(UserCreationForm):
